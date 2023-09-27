@@ -1,0 +1,251 @@
+---
+title: "HW2 -- Bingo"
+author: "Anthony Bernardi"
+date: "2023-08-31"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1 - Bingo Pseudocode
+
+
+
+*a ) A function that creates a bingo card.*
+
+
+
+No default argument or input. 
+
+Returns a 5x5 matrix, the columns labeled B, I, N, G, O.
+
+Column 1 values randomly sampled from numbers 1 to 15.
+
+Column 2 values randomly sampled from numbers 16 to 30.
+
+Column 3 values randomly sampled from numbers 31 to 45, except for a "Free space" 
+marked from the start of the game for all cards.
+
+Column 4 values randomly sampled from numbers 46 to 60.
+
+Column 5 values randomly sampled from numbers 61 to 75.
+
+
+*b) Function to play bingo by marking the card.*
+
+
+Two default arguments; the player's card and the number called from the hopper for all players.
+
+Function reads in player's card matrix.
+
+Function reads number called from the hopper, and if the numbers match, the corresponding card is marked.
+
+If there is no match, nothing is done with the player's card.
+
+
+*c) Function to read the player's bingo card and decide whether or not they've won the game.*
+
+
+Input is the player's marked bingo card.
+
+If the bingo card has 5 consecutive marks vertically, horizontally, or diagonally, print statement about how the player has won the game.
+
+If the card does not have 5 consecutive marks, do nothing and continue with the game.
+
+
+## 2 -- R Code
+
+## 2.1 -- Function to Create the Bingo Card
+
+```{r}
+
+# Introducing the function with no default argument 
+get_card <- function(){
+  
+  # generating the ranges to sample the bingo cards from 
+  range_1 <- seq(from = 1 , to = 15)
+  range_2 <- seq(from = 16 , to = 30)
+  range_3 <- seq(from = 31, to = 45)
+  range_4 <- seq(from = 46 , to = 60)
+  range_5 <- seq(from = 61 , to = 75)
+  
+  # taking a random sample in each case that will eventually be our rows and columns 
+  row_1_sample <- sample(range_1 , size = 5)
+  row_2_sample <- sample(range_2 , size = 5)
+  row_3_sample <- sample(range_3 , size = 5)
+  row_4_sample <- sample(range_4 , size = 5)
+  row_5_sample <- sample(range_5 , size = 5)
+  
+  # creating and generating the actual matrix  
+  card <- matrix(data = c(row_1_sample , row_2_sample , row_3_sample , 
+                          row_4_sample , row_5_sample) ,
+                 nrow = 5 , ncol = 5)
+  
+  # specifying rows and column names 
+  row_names <- c(1 , 2, 3, 4, 5)
+  title <- c('B', 'I', 'N', 'G', 'O')
+  
+  dimnames(card) <- list(row_names , title)
+  
+  
+  # ensuring everyone gets their free space 
+  
+  card[3,3] <- 0
+  
+  print(card)
+  
+}
+```
+
+
+```{r , echo = FALSE}
+player_1 <- get_card()
+```
+
+## 2.2 -- Function to Play Bingo by Marking the Card
+
+```{r}
+
+# Introducing the function once we have the player's card and a number from the
+# hopper. 
+
+marked <- function(number, card){
+  
+  
+  # need to loop over each row and column of a matrix 
+  # looping over every element of the matrix, or player's card, will let us
+  # know if there is a match 
+  # matches are marked with a 0
+  for (i in 1:nrow(card)){
+    for (j in 1:ncol(card)){
+      if (card[i,j] == number){
+        card[i,j] <- 0
+      } else {
+      }
+    }
+  }
+  # want to be sure the player's card updates if there is a match, or stays 
+  # the same if nothing happens.
+  card <- card
+  print(card)
+}
+```
+
+Let's use an example where the player with the above card has a match.
+Say a number on the player's first row and second column is called from the
+hopper. We write this in the R code and run it implicitly. We'll run both 
+functions and mark that card with a '0'.
+
+```{r , echo = FALSE}
+x <- player_1[1,2]
+
+
+player_1 <- marked(x , player_1)
+```
+
+
+## 2.3 -- Function that Considers the Card and Decides Whether or Not the Player Has Won the Game
+
+```{r}
+
+# function that takes in the player's current card and scans for matches 
+# along the rows, columns, and diagonally 
+
+winner <- function(card){
+  
+  # takes just the existing/marked card as an input and later checks for zeroes 
+  
+  # check the rows first 
+  for (i in 1:nrow(card)){
+    if(sum(card[i,]) == 0){
+      print('Bingo!')
+    } else{
+      
+    }
+  }
+  
+  # now checking the columns 
+  for (i in 1:ncol(card)){
+    if(sum(card[,i]) ==0){
+      print('Bingo!')
+    } else{
+      
+    }
+  }
+  
+  # now we can check the diagonals
+  # checking if the diagonal or if the reverse of the diagonal have our 
+  # five zeroes for a match/bingo 
+  
+  if (sum(diag(card)) == 0 | sum(rev(diag(card))) == 0){
+    print('Bingo!')
+  } else{
+    
+  }
+  
+  # for loop to create a diagonal in the opposite direction 
+  # calling it the reverse diagonal, going from the fifth row 
+  # of the first column to the fifth column of the first row 
+  
+  # creating a place to store the reverse diagonal 
+  reverse_diag <- 0
+  for (i in 1:5){
+    reverse_diag[i] <- card[i , 6-i]
+  }
+  
+  # clause to check for a bingo, have an or to ensure that both 
+  # directions of the diagonal are scanned by the function
+  
+  if (sum(reverse_diag) == 0 | sum(rev(reverse_diag)) == 0){
+    print('Bingo!')
+  } else if (length(card[card == 0]) <= 5){
+    print('Keep playing!')
+  }
+  
+}
+
+```
+
+Do we have a winner?
+
+The 'Winner' function will print 'Keep playing!' if the player's card doesn't have a bingo, and will print 'Bingo!' once there is. 
+
+```{r , echo = FALSE}
+winner(player_1)
+```
+
+
+## Extra example - A Winning Card 
+
+For posterity, let's consider a card where the player has a Bingo and has won 
+the game. We'll start with their card. 
+
+```{r , echo = FALSE}
+
+player_2 <- get_card()
+
+```
+
+We'll then replace just the first row with all 0's -- meaning that their card 
+has been marked in all five spaces in the first row. If only Bingo were this 
+easy!
+
+```{r , echo = FALSE}
+
+player_2[1,] <- rep(x = 0 ,  times = 5)
+
+player_2
+
+```
+
+Finally, we'll run our 'Winner' function with this card and the player should 
+get a message that they've won the game!
+
+```{r , echo = FALSE}
+
+winner(player_2)
+
+```
+
