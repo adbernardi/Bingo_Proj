@@ -1,0 +1,266 @@
+---
+title: "HW4 - Bingo Winners"
+author: "Anthony Bernardi"
+date: "2023-09-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We'll start with introducing our three functions from before. 
+
+```{r}
+get_card <- function(){
+  
+  # generating the ranges to sample the bingo cards from 
+  range_1 <- seq(from = 1 , to = 15)
+  range_2 <- seq(from = 16 , to = 30)
+  range_3 <- seq(from = 31, to = 45)
+  range_4 <- seq(from = 46 , to = 60)
+  range_5 <- seq(from = 61 , to = 75)
+  
+  # taking a random sample in each case that will eventually be our rows and columns 
+  row_1_sample <- sample(range_1 , size = 5)
+  row_2_sample <- sample(range_2 , size = 5)
+  row_3_sample <- sample(range_3 , size = 5)
+  row_4_sample <- sample(range_4 , size = 5)
+  row_5_sample <- sample(range_5 , size = 5)
+  
+  # creating and generating the actual matrix  
+  card <- matrix(data = c(row_1_sample , row_2_sample , row_3_sample , 
+                          row_4_sample , row_5_sample) ,
+                 nrow = 5 , ncol = 5)
+  
+  # specifying rows and column names 
+  row_names <- c(1 , 2, 3, 4, 5)
+  title <- c('B', 'I', 'N', 'G', 'O')
+  
+  dimnames(card) <- list(row_names , title)
+  
+  
+  # ensuring everyone gets their free space 
+  
+  card[3,3] <- 0
+  
+  print(card)
+  
+}
+```
+
+And calling them in each case. 
+
+```{r , echo = FALSE}
+card <- get_card()
+```
+
+```{r}
+marked <- function(number, card){
+  
+  
+  # need to loop over each row and column of a matrix 
+  # looping over every element of the matrix, or player's card, will let us
+  # know if there is a match 
+  # matches are marked with a 0
+  for (i in 1:nrow(card)){
+    for (j in 1:ncol(card)){
+      if (card[i,j] == number){
+        card[i,j] <- 0
+      } else {
+      }
+    }
+  }
+  # want to be sure the player's card updates if there is a match, or stays 
+  # the same if nothing happens.
+  card <- card
+  #move_counter <- move_counter + 1
+  #print(paste('Number of Moves:', move_counter))
+  print(card)
+}
+```
+
+Sampling a random number to call from the Hopper. 
+```{r}
+n <- sample(1:75 , 1)
+
+card <- marked(n, card)
+
+
+```
+
+
+Finally, our winner function. 
+
+```{r}
+winner <- function(card){
+  
+  # takes just the existing/marked card as an input and later checks for zeroes 
+  
+  # check the rows first 
+  for (i in 1:nrow(card)){
+    if(sum(card[i,])  == 0){
+      print('Bingo! -- By Rows!')
+      return(card)
+    } else{
+      
+    }
+  }
+  
+  # now checking the columns 
+  for (i in 1:ncol(card)){
+    if(sum(card[,i])  == 0){
+      print('Bingo! -- By Columns!')
+      return(card)
+    } else{
+      
+    }
+  }
+  
+  # now we can check the diagonals
+  # checking if the diagonal or if the reverse of the diagonal have our 
+  # five zeroes for a match/bingo 
+  
+  if (sum(diag(card)) == 0 | sum(rev(diag(card))) == 0){
+    print('Bingo! -- Diagonal!')
+    return(card)
+  } else{
+    
+  }
+  
+  # for loop to create a diagonal in the opposite direction 
+  # calling it the reverse diagonal, going from the fifth row 
+  # of the first column to the fifth column of the first row 
+  
+  # creating a place to store the reverse diagonal 
+  reverse_diag <- 0
+  for (i in 1:5){
+    reverse_diag[i] <- card[i , 6-i]
+  }
+  
+  # clause to check for a bingo, have an or to ensure that both 
+  # directions of the diagonal are scanned by the function
+  
+  if (sum(reverse_diag) == 0 | sum(rev(reverse_diag)) == 0){
+    print('Bingo! -- Reverse Diagonal!')
+    return(card)
+  } else if (length(card[card == 0]) >= 5){
+    print('Keep playing!')
+  } else {
+    print('Keep playing!')
+  }
+  
+}
+
+
+```
+
+
+And verifying. 
+
+```{r}
+result <- winner(card)
+```
+
+Now, we'll introduce a new function to play the game multiple times, with some 
+introductory statements to codify the rules ahead of time, for ease of use. 
+
+```{r}
+full_game <- function(){
+  card <- get_card()
+  colSums(card)
+  rowSums(card)
+  length(card[card == 0])
+  move_counter <- 0
+  games_count <- 0
+  diag_wins <- 0
+  row_wins <- 0
+  col_wins <- 0
+  (result <- winner(card))
+  #while (times_played < g){
+    while (grepl('playing!', result) == TRUE){
+      n <- sample(1:75 , 1)
+      card <- marked(n, card)
+      result <- winner(card)
+      #return(card)
+      #return(result)
+      move_counter <- move_counter + 1
+      # maybe something to just print the first result 
+    }
+    result
+    if (grepl('playing!', result) == FALSE){
+      print(length(result))
+      print(result[1])
+      print(paste('Number of Moves:', move_counter))
+      times_played <- times_played + 1
+      print(paste('Number of Games:', times_played))
+      # start storing win types here 
+      # something with this control flow is off 
+      if (grepl('Diagonal', result[1]) == TRUE){
+        diag_wins <- diag_wins + 1
+      } else if (grepl('Rows!' , result[1]) == TRUE){
+        row_wins <- row_wins + 1
+      } else if (grepl('Columns!', result[1]) == TRUE){
+        col_wins <- col_wins + 1
+      }
+    }
+    wins_totals <- c(diag_wins , row_wins , col_wins)
+    wins_totals
+    
+    for (i in 1:3){
+      print(wins_totals[i])
+    }
+    
+    games_count <- games_count + 1
+    print(paste(
+      paste('Diagonal:' , diag_wins) , 
+      paste('Row:' , row_wins) , 
+      paste('Col:' , col_wins) , 
+      paste('Games Count:' , games_count)
+    ))
+    
+    
+    #print(paste('Diagonal:' , diag_wins))
+    #print(paste('Row:' , row_wins))
+    #print(paste('Col:' , col_wins))
+    #games_count <- games_count + 1
+    #print(paste('Games Count:', games_count , 
+    #            ''))
+  }
+```
+
+Here are some ideas for a multi-game framework and how we might simulate
+the bingo game multiple times, commented out. 
+
+```{r}
+
+#for (i in 1:2){
+#  test <- full_game()
+#  print(test)
+#}
+# another function for the actual multi_game 
+
+# maybe just do a for loop 
+#results <- 0
+#for (i in 1:3){
+#  results <- full_game()
+#  print(results)
+#}
+
+
+
+#multi_game <- function(n){
+#  times_played <- 0
+#  while (times_played < n){
+#    full_game()
+#    times_played <- times_played + 1
+#  }
+#}
+
+#multi_game(2)
+
+```
+
+
+
+
